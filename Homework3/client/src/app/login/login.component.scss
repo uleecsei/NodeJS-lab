@@ -1,0 +1,38 @@
+@import "../../assets/variables.scss";
+
+
+
+.form {
+  text-align: left;
+  width: min-content;
+  margin: auto;
+  &__register {
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 13px;
+  }
+  &-group {
+    width: 280px;
+  }
+  &-wrapper {
+    position: relative;
+    z-index: 1;
+    width: $form-width;
+    margin: auto;
+    text-align: center;
+    background-color: #ffffffba;
+    padding: 50px 0 50px 0;
+    margin-top: 210px;
+  }
+  &-control {
+    width: 280px;
+    margin: 5px 0;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .form-wrapper {
+    width: auto;
+  }
+}

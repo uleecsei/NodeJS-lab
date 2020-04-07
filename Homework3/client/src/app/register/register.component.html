@@ -1,0 +1,42 @@
+<div class="form-wrapper">
+  <form class="form form-group">
+    <h2 class="form__title">Registration</h2>
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+      <label class="btn btn-secondary active">
+        <input type="radio" name="role" id="shipper" value="shipper" autocomplete="off" checked> Shipper
+      </label>
+      <label class="btn btn-secondary">
+        <input type="radio" name="role" id="driver" value="driver" autocomplete="off"> Driver
+      </label>
+    </div>
+    <label class="form__label"
+      >Name:<input id="name" name="name" type="text" class="form-control" [(ngModel)]="user.name" placeholder="Enter your name" required/>
+    </label>
+    <label class="form__label"
+      >Surname:<input id="surname" name="surname" [(ngModel)]="user.surname" type="text" class="form-control" placeholder="Enter your surname" required
+    /></label>
+    <label class="form__label"
+      >Username:<input id="username" type="text" name="username" [(ngModel)]="user.username" class="form-control" placeholder="Enter username" required/><small
+        class="form-text text-muted"
+        >Username must be unique.</small
+      ></label
+    >
+    <label class="form__label"
+      >Email:<input id="email" type="email" name="email" [(ngModel)]="user.email" class="form-control" placeholder="Enter email" required/><small
+        class="form-text text-muted"
+        >We'll never share your email with anyone else.</small
+      ></label
+    >
+    <label class="form__label"
+      >Password:<input id="password" type="password" name="password" [(ngModel)]="user.password" class="form-control" placeholder="Enter password" required/><small
+        class="form-text text-muted"
+        >Password should be strong.</small
+      ></label
+    >
+    <label class="form__label"
+      >Confirm password:<input id="repeat" type="password" class="form-control" placeholder="Repeat password" required
+    /></label>
+    <input id="submit" (click)="register()" type="submit" value="submit" class="btn btn-primary" />
+    <a href="/login" class="form__login">Already have an account?</a>
+  </form>
+</div>

@@ -17,11 +17,11 @@ passport.use(
           try {
             const userDocument = await User.findOne({
               email: username,
-            }).exec();
+            });
             if (!userDocument) {
-              throw new Error('User not found!');
+              throw done('User not found!');
             }
-            const passwordsMatch = await bcrypt.compare(
+            const passwordsMatch = await bcrypt.compareSync(
                 password,
                 userDocument.password,
             );

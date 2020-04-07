@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>EURO Truck</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="../styles/driver.css" />
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+      integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+      integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="page">
+        <header class="header">
+          <div class="header__bg">
+            <h2 class="header__title">
+              <span class="header__type">Driver</span
+              ><span class="badge badge-success">mode</span>
+            </h2>
+          </div>
+          <div class="header__logo">
+            <img class="header__img" src="../images/logo.png" alt="logo" />
+          </div>
+        </header>
+        <main class="main">
+          <div class="profile">
+            <div class="profile__pic-wrapper">
+              <img class="profile__pic" src="../images/gears.png" alt="gears" />
+            </div>
+            <div class="profile__card">
+              <div class="profile__title">Driver license</div>
+              <ul class="profile__list">
+                <li class="profile__item">
+                  <div class="profile__fullname">
+                    <span class="profile__name">Oleksii</span><span> </span
+                    ><span class="profile__surname">Buchko</span>
+                  </div>
+                </li>
+                <li class="profile__item">
+                  <div class="profile__userid">
+                    <span class="profile__item-title">UserID: </span
+                    ><span class="profile__userid-data">123456</span>
+                  </div>
+                </li>
+                <li class="profile__item">
+                  <div class="profile__username">
+                    <span class="profile__item-title">@</span
+                    ><span class="profile__username-data">uleecsei</span>
+                  </div>
+                </li>
+                <li class="profile__item">
+                  <div class="profile__email">
+                    <span class="profile__item-title">Email: </span
+                    ><span class="profile__email-data">uleecsei@gmail.com</span>
+                  </div>
+                </li>
+                <li class="profile__item">
+                  <a href="#" class="profile__change-pass">Change password</a>
+                </li>
+                <li class="profile__item">
+                  <a href="#" class="profile__delete">Delete an account</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="shipment">
+            <h3 class="shipment__title">Current shipments</h3>
+            <div class="shipment__table-wrapper">
+              <table class="shipment__table table">
+                <thead class="thead-dark">
+                  <tr class="headings">
+                    <th scope="col" class="headings__name">Name</th>
+                    <th scope="col" class="headings__dimensions">Dimensions</th>
+                    <th scope="col" class="headings__status">Status</th>
+                    <th scope="col" class="headings__button"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="load">
+                    <th scope="row" class="load__name">Plates</th>
+                    <td class="load__dimensions">
+                      <span class="load__width">200</span>
+                      <span> x </span>
+                      <span class="load__height">300</span>
+                      <span> , </span>
+                      <span class="load__length">1200</span>
+                      <span> kg</span>
+                    </td>
+                    <td class="load__status">En-route to pick-up</td>
+                    <td>
+                      <input
+                        class="btn btn-primary load__submit"
+                        type="button"
+                        value="Change status to 'Arrived'"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="load">
+                    <th scope="row" class="load__name">Plates</th>
+                    <td class="load__dimensions">
+                      <span class="load__width">200</span>
+                      <span> x </span>
+                      <span class="load__height">300</span>
+                      <span> , </span>
+                      <span class="load__length">1200</span>
+                      <span> kg</span>
+                    </td>
+                    <td class="load__status">En-route to pick-up</td>
+                    <td>
+                      <input
+                        class="btn btn-primary load__submit"
+                        type="button"
+                        value="Change status to 'Arrived'"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="trucks">
+            <h3 class="trucks__title">
+              Your trucks
+            </h3>
+
+            <div class="trucks__table-wrapper">
+              <table class="trucks__table table">
+                <thead class="thead-dark">
+                  <tr class="headings">
+                    <th scope="col" class="headings__type">Type</th>
+                    <th scope="col" class="headings__dimensions">Dimensions</th>
+                    <th scope="col" class="headings__status">Status</th>
+                    <th scope="col" class="headings__button"></th>
+                    <th scope="col" class="headings__button"></th>
+                    <th scope="col" class="headings__button">
+                      <input
+                        class="btn btn-primary car__submit"
+                        type="button"
+                        value="Add new +"
+                      />
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="car">
+                    <th scope="row" class="car__name">Plates</th>
+                    <td class="car__dimensions">
+                      <span class="car__width">200</span>
+                      <span> x </span>
+                      <span class="car__height">300</span>
+                      <span> , </span>
+                      <span class="car__length">1200</span>
+                      <span> kg</span>
+                    </td>
+                    <td class="car__status">En-route to pick-up</td>
+                    <td class="car__button">
+                      <input
+                        class="btn btn-success car__assign"
+                        type="button"
+                        value="Assign Truck"
+                      />
+                    </td>
+                    <td class="car__button">
+                      <input
+                        class="btn btn-primary car__update"
+                        type="button"
+                        value="Update info"
+                        disabled
+                      />
+                    </td>
+                    <td class="car__button">
+                      <input
+                        class="btn btn-danger car__delete"
+                        type="button"
+                        value="Delete truck"
+                        disabled
+                      />
+                    </td>
+                  </tr>
+                  <tr class="load">
+                    <th scope="row" class="load__name">Plates</th>
+                    <td class="load__dimensions">
+                      <span class="load__width">200</span>
+                      <span> x </span>
+                      <span class="load__height">300</span>
+                      <span> , </span>
+                      <span class="load__length">1200</span>
+                      <span> kg</span>
+                    </td>
+                    <td class="load__status">En-route to pick-up</td>
+                    <td class="car__button">
+                      <input
+                        class="btn btn-success load__assign"
+                        type="button"
+                        value="Assign Truck"
+                      />
+                    </td>
+                    <td class="car__button">
+                      <input
+                        class="btn btn-primary car__update"
+                        type="button"
+                        value="Update info"
+                        disabled
+                      />
+                    </td>
+                    <td class="car__button">
+                      <input
+                        class="btn btn-danger car__delete"
+                        type="button"
+                        value="Delete truck"
+                        disabled
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+        <div class="footer"></div>
+      </div>
+    </div>
+  </body>
+</html>

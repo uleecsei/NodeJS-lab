@@ -1,0 +1,168 @@
+@import "./variables.scss";
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.wrapper {
+  background-color: $orange;
+}
+
+.page {
+  width: 90%;
+  margin: 0 auto;
+  height: 100%;
+  background-color: $white;
+}
+
+.header {
+  &__bg {
+    height: 69px;
+    color: $black;
+    box-shadow: 0px 5px 6px 0px rgba(0, 0, 0, 0.75);
+    text-align: end;
+  }
+  &__logo {
+    width: 160px;
+    position: absolute;
+    background-color: $white;
+    font-size: 19px;
+    text-align: center;
+    left: calc(5% + 70px);
+    box-shadow: 0px 13px 8px -6px rgba(0, 0, 0, 0.75);
+    z-index: 2;
+    top: 12px;
+    border: 5px solid $orange;
+    padding: 10px;
+  }
+  &__img {
+    width: 100%;
+  }
+  &__title {
+    padding-top: 13px;
+    padding-right: 20px;
+  }
+  &__type {
+    padding-right: 5px;
+    vertical-align: text-bottom;
+    font-size: 29px;
+  }
+}
+
+.main {
+  margin-top: 100px;
+}
+
+.profile {
+  display: flex;
+  justify-content: space-around;
+  &__pic {
+    width: 100%;
+    &-wrapper {
+      width: 360px;
+    }
+  }
+  &__card {
+    box-shadow: 0px 5px 6px 0px rgba(0, 0, 0, 0.75);
+    border-radius: 20px;
+    border-bottom: 20px solid $blue;
+    height: 360px;
+  }
+  &__title {
+    text-align: center;
+    height: 40px;
+    background: $blue;
+    color: $white;
+    border-radius: 20px 20px 0 0;
+    font-size: 25px;
+    font-weight: bold;
+  }
+  &__list {
+    text-align: start;
+    list-style: none;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 450px;
+    height: 300px;
+    padding: 20px;
+    border-right: 5px solid $blue;
+    border-left: 5px solid $blue;
+    margin: 0;
+    background-color: $lightblue;
+  }
+  &__item {
+    &-title {
+      font-weight: bold;
+    }
+  }
+  &__item > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  &__fullname {
+    font-size: 23px;
+    font-weight: bold;
+    border-bottom: 2px solid $black;
+  }
+  &__username {
+    font-weight: bold;
+  }
+  &__userid {
+    color: $gray;
+    font-style: italic;
+    font-size: 13px;
+  }
+  &__delete {
+    color: red;
+  }
+  &__email {
+    margin-bottom: 50px;
+  }
+}
+
+.shipment {
+  width: 95%;
+  margin: 40px auto 0 auto;
+  height: 289px;
+  box-shadow: 0px 5px 6px 0px rgba(0, 0, 0, 0.75);
+  padding: 10px;
+  &__table-wrapper {
+    overflow: scroll;
+    height: 247px;
+  }
+  &__title {
+    text-align: center;
+    background-color: $lightblue;
+  }
+  &__list {
+    list-style: none;
+  }
+  &__item {
+    display: flex;
+  }
+}
+
+.headings {
+  &__button {
+    width: 28%;
+  }
+}
+
+.trucks {
+  width: 95%;
+  margin: 40px auto 0 auto;
+  height: 289px;
+  box-shadow: 0px 5px 6px 0px rgba(0, 0, 0, 0.75);
+  padding: 10px;
+  &__title {
+    text-align: center;
+    background-color: $lightblue;
+  }
+}
+
+.trucks .headings{
+  &__button {
+    width: 10%;
+  }
+}

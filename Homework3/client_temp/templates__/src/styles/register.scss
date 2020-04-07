@@ -1,0 +1,91 @@
+@import "./variables.scss";
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.wrapper {
+  height: $wrapper-height;
+  background: url("../images/back.jpg") no-repeat center center fixed;
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.form {
+  text-align: left;
+  width: min-content;
+  margin: auto;
+  &__title {
+    width: min-content;
+  }
+  &__login {
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 13px;
+  }
+  &-group {
+    width: 280px;
+  }
+  &-wrapper {
+    position: relative;
+    z-index: 1;
+    width: $form-width;
+    margin: auto;
+    text-align: center;
+    background-color: #ffffffba;
+    padding: 50px 0 50px 0;
+    margin-top: 10px;
+  }
+  &-control {
+    width: 280px;
+  }
+}
+
+.header {
+  &__bg {
+    background: $orange;
+    height: 69px;
+    box-shadow: 0px 5px 6px 0px rgba(0, 0, 0, 0.75);
+  }
+  &__logo {
+    width: 160px;
+    position: absolute;
+    background-color: $white;
+    font-size: 19px;
+    text-align: center;
+    left: 90px;
+    box-shadow: 0px 13px 8px -6px rgba(0, 0, 0, 0.75);
+    z-index: 2;
+    top: 12px;
+    border: 5px solid $orange;
+    padding: 10px;
+  }
+  &__img {
+    width: 100%;
+  }
+}
+
+.btn-secondary:not(:disabled):not(.disabled).active,
+.btn-secondary:not(:disabled):not(.disabled):active,
+.show > .btn-secondary.dropdown-toggle {
+  color: $black;
+  border-color: $black;
+  background-color: $orange;
+}
+.btn-secondary {
+  background-color: $black;
+}
+.btn-group {
+  margin-left: 129px;
+}
+
+@media screen and (max-width: 500px) {
+  .form-wrapper {
+    width: auto;
+  }
+}
