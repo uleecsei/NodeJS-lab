@@ -31,8 +31,8 @@ const loadSchema = new Schema({
     width: {type: Number, required: true},
     length: {type: Number, required: true},
     height: {type: Number, required: true},
-    weight: {type: Number, required: true},
   },
+  payload: {type: Number, required: true},
   state: {
     type: String,
     enum: [

@@ -6,53 +6,79 @@ const Load = require('../models/Load');
 const Truck = require('../models/Truck');
 
 /**
- * @api {post} /api/load/:id create load.
+ * @api {post} /api/loads Create load(only shipper has access).
  * @apiName PostLoad
  * @apiGroup Load
  *
- * @apiHeader {String} payload User's jwt from local storage.
- * @apiParam {Object} dimensions load's dimensions.
- * @apiParam {Number} dimensions.weight load's payload.
- * @apiParam {Number} dimensions.width load's width.
- * @apiParam {Number} dimensions.height load's height.
- * @apiParam {Number} dimensions.length load's length.
- * @apiParam {String} name load's name.
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
  *
- * @apiSuccess {Object} load Load was successfully created.
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
  *
- * @apiError UserIsUnAuthorized User is not authorized.
- * @apiError LoadWasNotCreated Load wasn\'t created.
+ * @apiParam {Object} dimensions Load dimensions.
+ * @apiParam {Number} payload Load weight.
+ * @apiParamExample {json} Payload example:
+ *               { "payload": 100, "dimensions": {length: 100, width: 100, height: 100} }
+ *
+ * @apiSuccess {String} status Operation status.
+ * @apiSuccess {String} load Load.
+ * @apiSuccessExample {json} Success-Response:
+ * {
+  "status": "Load created successfully",
+  "load": {
+    "assigned_to": null,
+    "status": "NEW",
+    "name": "Load",
+    "state": null,
+    "_id": "5e8dd07ca51abaac2b0583f4",
+    "dimensions": {
+        "width": 100,
+        "height": 100,
+        "length": 100
+    },
+    "payload": 100,
+    "..." : ...
+}
+}
+ *
+ *
+ * @apiError AccessDenied Access denied
+ * @apiError IncorrectData Incorrect data
  * @apiError WrongId TokenId and url's id do not match
+ * @apiError LoadWasNotCreated Load was not created
  */
 
-router.post('/:id', tokenCheck, async (req, res) => {
+router.post('/', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Incorrect id';
+    if (req.payload.role.toString() !== 'shipper') {
+      throw Error('Access denied');
     }
 
     const {value, error} = loadSchema.validate({
-      name: req.body.name,
+      name: req.body.name || 'Load',
       dimensions: {
-        width: req.body.width,
-        height: req.body.height,
-        length: req.body.length,
-        weight: req.body.weight,
+        width: req.body.dimensions.width,
+        height: req.body.dimensions.height,
+        length: req.body.dimensions.length,
       },
+      payload: req.body.payload,
     });
     if (error) {
-      throw 'Incorrect data';
+      throw Error('Incorrect data');
     }
 
     await Load.create(
         {
           name: req.body.name,
           dimensions: {
-            width: Number(req.body.width),
-            height: Number(req.body.height),
-            length: Number(req.body.length),
-            weight: Number(req.body.weight),
+            width: Number(req.body.dimensions.width),
+            height: Number(req.body.dimensions.height),
+            length: Number(req.body.dimensions.length),
           },
+          payload: req.body.payload,
           logs: [
             {
               message: `url: ${req.url},
@@ -62,48 +88,85 @@ router.post('/:id', tokenCheck, async (req, res) => {
               date: Date.now(),
             },
           ],
-          created_by: req.params.id,
+          created_by: req.payload.id,
         },
         (err, load) => {
           if (err) {
-            res.status(500).json({message: 'Load was not created', err});
+            res.status(500).json({status: 'Load was not created', err});
           }
-          res.status(200).send(load);
+          res.status(200).json({load, status: 'Load created successfully'});
         },
     );
   } catch (err) {
-    res.status(500).json({message: 'Load was not created', err});
+    res.status(500).json({status: 'Load was not created', err});
   }
 });
 
 /**
- * @api {put} /api/load/:id update load info
- * @apiName PutLoad
+ * @api {patch} /api/loads/:id Update load info(only if the load is NEW)
+ * @apiName PatchLoad
  * @apiGroup Load
  *
- * @apiHeader {String} payload User's jwt from local storage.
- * @apiParam {Object} dimensions load's dimensions.
- * @apiParam {Number} dimensions.weight load's payload.
- * @apiParam {Number} dimensions.width load's width.
- * @apiParam {Number} dimensions.height load's height.
- * @apiParam {Number} dimensions.length load's length.
- * @apiParam {String} name load's name.
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
  *
- * @apiSuccess {Object} response Load was updated.
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
  *
- * @apiError UserIsUnAuthorized User is not authorized.
- * @apiError LoadWasNotUpdated Load wasn\'t updated.
- * @apiError WrongId TokenId and url's id do not match
+ * @apiParam {Object} dimensions Load dimensions.
+ * @apiParam {Number} payload Load weight.
+ * @apiParamExample {json} Payload example:
+ *               { "payload": 100, "dimensions": {length: 100, width: 100, height: 100} }
  *
+ * @apiSuccess {String} Load was updated.
+ * @apiSuccess {String} load Load.
+ * @apiSuccessExample {json} Success-Response:
+ * {
+  "status": "Load created successfully",
+  "load": {
+    "assigned_to": null,
+    "status": "NEW",
+    "name": "Load",
+    "state": null,
+    "_id": "5e8dd07ca51abaac2b0583f4",
+    "dimensions": {
+        "width": 100,
+        "height": 100,
+        "length": 100
+    },
+    "payload": 100,
+    "..." : ...
+}
+}
+ *
+ *
+ * @apiError AccessDenied Access denied
+ * @apiError IncorrectData Server can not find a load
+ * @apiError LoadNotUpdated Load was not updated
+ * @apiError IncorrectData Incorrect data
  */
 
-router.put('/:id', tokenCheck, async (req, res) => {
+router.patch('/:id', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Incorrect id';
+    if (req.payload.role.toString() !== 'shipper') {
+      throw Error('Access denied');
+    }
+    const {value, error} = loadSchema.validate({
+      name: req.body.name || 'Load',
+      dimensions: {
+        width: req.body.dimensions.width,
+        height: req.body.dimensions.height,
+        length: req.body.dimensions.length,
+      },
+      payload: req.body.payload,
+    });
+    if (error) {
+      throw Error('Incorrect data');
     }
 
-    const loadId = req.body._id;
+    const loadId = req.params.id;
 
     const isNew = await Load.findOne({_id: loadId, status: 'NEW'});
     if (isNew) {
@@ -111,7 +174,7 @@ router.put('/:id', tokenCheck, async (req, res) => {
       Load.findByIdAndUpdate(
           loadId,
           {
-            ...req.body.updates,
+            ...req.body,
             logs: [
               ...logs,
               {
@@ -125,42 +188,51 @@ router.put('/:id', tokenCheck, async (req, res) => {
           },
           (err, response) => {
             if (err) {
-              res.status(500).json({message: 'Load was not updated', err});
+              res.status(500).json({status: 'Load was not updated', err});
             }
-            res.status(200).json(response);
+            res.status(200).json({status: 'Load was updated', load: response});
           },
       );
     } else {
-      throw 'Server can not find a load';
+      throw Error('Server can not find a load');
     }
   } catch (err) {
-    res.status(500).json({message: 'Load was not updated', err});
+    res.status(500).json({status: 'Load was not updated', err});
   }
 });
 
 /**
- * @api {delete} /api/load/:id deleting load by id and status NEW
+ * @api {delete} /api/loads/:id Delete load(only if the load is NEW)
  * @apiName DeleteLoad
  * @apiGroup Load
  *
- * @apiHeader {String} payload User's jwt from local storage.
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
+ *
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
  *
  * @apiSuccess {String} message Load was deleted with success.
+ * @apiSuccessExample {json} Success-Response:
+ *  {"status": 'Load was deleted with success'}
  *
- * @apiError UserIsUnAuthorized User is not authorized.
+ * @apiError AccessDenied Access denied.
  * @apiError LoadWasnotNew Load wasn't deleted.
  * @apiError WrongId TokenId and url's id do not match
+ * @apiError LoadNotFound Server can not find a load
  */
 
 router.delete('/:id', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Incorrect id';
+    if (req.payload.role.toString() !== 'shipper') {
+      throw Error('Access denied');
     }
-    const loadId = req.body._id;
+    const loadId = req.params.id;
 
     if (!loadId) {
-      throw 'LoadId is required';
+      throw Error('LoadId is required');
     }
     const isNew = await Load.findOne({
       _id: loadId,
@@ -169,50 +241,68 @@ router.delete('/:id', tokenCheck, async (req, res) => {
     if (isNew) {
       const isDeleted = await Load.findByIdAndDelete(loadId);
       if (isDeleted) {
-        res.status(200).send({message: 'Load was deleted with success'});
+        res.status(200).send({status: 'Load was deleted with success'});
       } else {
         res
             .status(500)
-            .send({message: 'Truck was not deleted', err: 'Incorrect loadId'});
+            .send({status: 'Load was not deleted', err: 'Incorrect loadId'});
       }
     } else {
-      throw 'Server can not find a load';
+      throw Error('Server can not find a load');
     }
   } catch (err) {
-    res.status(500).json({message: 'Load was not deleted', err});
+    res.status(500).json({status: 'Load was not deleted', err});
   }
 });
 
 /**
- * @api {put} /api/load/:id/post finding truck with fitting demensions
- * @apiName PutLoad
+ * @api {patch} /api/loads/:id/post Post load(only shippers has access).
+ * @apiName PatchLoad
  * @apiGroup Load
  *
- * @apiHeader {String} payload User's jwt from local storage.
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
  *
- * @apiSuccess {String} truckAssigned Returning truck data.
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
  *
- * @apiError UserIsUnAuthorized User is not authorized.
- * @apiError LoadWasntAssigned Server can not assign truck or/and load.
+ *
+ * @apiSuccess {String} status Operation status.
+ * @apiSuccess {String} assigned_to Truck which ship a load.
+ * @apiSuccessExample {json} Success-Response:
+ *  {
+  "status": "Load posted successfully",
+  "assigned_to": "fiwanfoianw"
+}
+* @apiSuccessExample {json} Success-Response no drivers found:
+ *  {
+  "status": "No drivers found",
+}
+ *
+ * @apiError AccessDenied Access denied.
+ * @apiError LoadIdIsRequired LoadId is required
  * @apiError LoadDoesntExist Server can not find a load
- * @apiError TruckDoesntExist No trucks to ship founded.
- * @apiError WrongId TokenId and url's id do not match
+ * @apiError LoadNotFound No trucks to ship founded.
+ * @apiError NoTrucksToShip No trucks to ship founded
+ * @apiError LoadNotAssigned Server can not assign truck or/and load
  */
 
-router.put('/:id/post', tokenCheck, async (req, res) => {
+router.patch('/:id/post', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Incorrect id';
+    if (req.payload.role.toString() !== 'shipper') {
+      throw Error('Access denied');
     }
 
-    const loadId = req.body._id;
+    const loadId = req.params.id;
     if (!loadId) {
-      throw 'LoadId is required';
+      throw Error('LoadId is required');
     }
 
     const load = await Load.findById(loadId);
     if (!load) {
-      throw 'Server can not find a load';
+      throw Error('Server can not find a load');
     }
     await Load.findByIdAndUpdate(loadId, {status: 'POSTED'});
     const fittingTruck = await Truck.where('assigned_to')
@@ -220,7 +310,7 @@ router.put('/:id/post', tokenCheck, async (req, res) => {
         .where('status')
         .equals('IS')
         .where('params.weight')
-        .gt(load.dimensions.weight)
+        .gt(load.payload)
         .where('params.width')
         .gt(load.dimensions.width)
         .where('params.length')
@@ -230,7 +320,9 @@ router.put('/:id/post', tokenCheck, async (req, res) => {
         .findOne();
 
     if (!fittingTruck) {
-      throw 'No trucks to ship founded';
+      throw res.status(200).json({
+        status: 'No drivers found',
+      });
     }
 
     const truckAssigned = await Truck.findByIdAndUpdate(fittingTruck._id, {
@@ -253,44 +345,57 @@ router.put('/:id/post', tokenCheck, async (req, res) => {
       ],
     });
     if (truckAssigned && loadAssigned) {
-      res.status(200).json(truckAssigned);
+      res.status(200).json({
+        status: 'Load posted successfully',
+        assigned_to: truckAssigned._id,
+      });
     } else {
-      throw 'Server can not assign truck or/and load';
+      throw Error('Server can not assign truck or/and load');
     }
   } catch (err) {
-    res.status(500).json({message: 'Load was not posted', err});
+    res.status(500).json({status: 'Load was not posted', err});
   }
 });
 
 /**
- * @api {put} /api/load/:id/shipped driver set load status to shipped
- * @apiName PutLoad
+ * @api {patch} /api/loads/:id/state Change load state(only driver has access, for only active load).
+ * @apiName PatchLoad
  * @apiGroup Load
  *
- * @apiHeader {String} payload User's jwt from local storage.
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
  *
- * @apiSuccess {String} message Load successfuly shipped.
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
+ *
+ * @apiSuccess {String} status Load successfuly shipped.
+ * @apiSuccessExample {json} Success-Response:
+ * {
+  "status": "Load status changed successfully",
+}
  *
  * @apiError UserIsUnAuthorized User is not authorized.
  * @apiError LoadWasntAssigned Load wasn't shipped.
  * @apiError LoadDoesntExist Load doesn't exist.
  * @apiError TruckDoesntExist Truck was not found.
- * @apiError WrongId TokenId and url's id do not match
+ * @apiError NotShipped Load was not shipped or/and truck still has status OL
  */
 
-router.put('/:id/shipped', tokenCheck, async (req, res) => {
+router.patch('/:id/state', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Incorrect id';
+    if (req.payload.role.toString() !== 'driver') {
+      throw Error('Access denied');
     }
 
-    const loadId = req.body._id;
+    const loadId = req.params.id;
     const load = await Load.findOne({
       _id: loadId,
-      assigned_to: req.params.id,
+      assigned_to: req.payload.id,
     });
     if (!load) {
-      throw 'Server can not find the load';
+      throw Error('Server can not find the load');
     }
 
     const truck = await Truck.findOne({
@@ -299,7 +404,7 @@ router.put('/:id/shipped', tokenCheck, async (req, res) => {
     });
 
     if (!truck) {
-      throw 'Server can not find the truck';
+      throw Error('Server can not find the truck');
     }
 
     const logs = load.logs;
@@ -322,13 +427,73 @@ router.put('/:id/shipped', tokenCheck, async (req, res) => {
       status: 'IS',
     });
     if (isShipped && isInService) {
-      res.status(200).json({message: 'Load successfuly shipped'});
+      res.status(200).json({status: 'Load status changed successfully'});
     } else {
-      throw 'Load was not shipped or/and truck still has status OL';
+      throw Error('Load was not shipped or/and truck still has status OL');
     }
   } catch (err) {
-    res.status(500).json({message: 'Load was not posted', err});
+    res.status(500).json({status: 'Load was not shipped', err});
   }
 });
 
+/**
+ * @api {get} /api/loads Retreive active for this driver loads.
+ * @apiName getLoad
+ * @apiGroup Load
+ *
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
+ *
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
+ *
+ * @apiSuccess {String} status Load successfuly shipped.
+ * @apiSuccess {Object} loads Array of loads.
+ * @apiSuccessExample {json} Success-Response:
+ * {
+  "status": "Success"
+  "loads": [
+     {
+         "_id": "fbawfibaw",
+         "assigned_to": "noifawnfoian",
+         "created_by": "jfnaikfna",
+         "status": "ASSIGNED",
+         "state": "En route to Pick Up",
+         "logs": [{"message": "Load created", time: 12312}],
+         "payload": 100,
+         "dimensions": {length: 100, width: 100, height: 100}
+         "...": "..."
+     }
+  ]
+}
+ *
+ * @apiError LoadNotFound Server can not find any load
+ * @apiError InvalidRole Invalid role
+ */
+
+router.get('/', tokenCheck, async (req, res) => {
+  try {
+    if (req.payload.role.toString() == 'driver') {
+      const loads = await Load.find({assigned_to: req.payload.id});
+      if (loads) {
+        res.status(200).json({status: 'Success', loads});
+      } else {
+        throw Error('Server can not find any load');
+      }
+    } else if (req.payload.role.toString() == 'shipper') {
+      const loads = await Load.find({created_by: req.payload.id});
+      if (loads) {
+        res.status(200).json({status: 'Success', loads});
+      } else {
+        throw Error('Server can not find any load');
+      }
+    } else {
+      throw Error('Invalid role');
+    }
+  } catch (err) {
+    res.status(500).json({status: 'No data', err});
+  }
+});
 module.exports = router;

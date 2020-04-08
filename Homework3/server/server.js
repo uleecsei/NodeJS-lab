@@ -25,10 +25,10 @@ mongoose.connect(dbConfig.uri, {
   useCreateIndex: true,
 });
 
-app.use('/api/register', registerRoute);
-app.use('/api/login', loginRoute);
+app.use('/api/auth/register', registerRoute);
+app.use('/api/auth/login', loginRoute);
 app.use('/api/profile', profileRoute);
-app.use('/api/truck', truckRoute);
-app.use('/api/load', loadRoute);
+app.use('/api/trucks', truckRoute);
+app.use('/api/loads', loadRoute);
 
 app.listen(8082);

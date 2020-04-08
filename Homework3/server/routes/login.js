@@ -8,23 +8,33 @@ const JWT_EXPIRATION_MS = 3600 * 24 * 1000;
 const router = express.Router();
 
 /**
- * @api {post} /api/login login user
- * @apiName PostUser
- * @apiGroup User
+ * @api {post} /api/auth/login Login endpoint.
  *
- * @apiParam {String} email User's email.
- * @apiParam {String} password User's password.
+ * @apiName PostLogin
+ * @apiGroup Auth
  *
- * @apiSuccess {String} token User jwt.
- * @apiSuccess {String} id User unique id.
- * @apiSuccess {String} email User email.
- * @apiSuccess {Date} expires Date of expiration
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ *
+ * @apiParam {String} username Username.
+ * @apiParam {String} password Password.
+ * @apiParamExample {json} Payload example:
+ *               { "username": "Kyrylo", "password": "test1234" }
+ *
+ * @apiSuccess {String} status Operation status.
+ * @apiSuccess {String} token JWT token.
+ * @apiSuccess {String} id User's id.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *                 { "status": "User authenticated successfully"
+  "token": "fnawilfmnaiwngainegnwegneiwngoiwe",
+  "id": "12345" }
  *
  * @apiError UserDoesntExist This user doesn't exist.
  * @apiError UserWrongPassword Wrong password.
  * @apiError UserWasntLogined User wasn't logined.
  */
-
 
 router.post('/', (req, res) => {
   passport.authenticate('local', {session: false}, (error, user) => {
@@ -35,6 +45,7 @@ router.post('/', (req, res) => {
         email: user.email,
         expires: Date.now() + JWT_EXPIRATION_MS,
         id: user._id,
+        role: user.role,
       };
       req.login(payload, {session: false}, (error) => {
         if (error) {
@@ -43,7 +54,11 @@ router.post('/', (req, res) => {
 
         const token = jwt.sign(JSON.stringify(payload), secret);
 
-        res.status(200).send({token: token, id: user._id});
+        res.status(200).send({
+          status: 'User authenticated successfully',
+          token: token,
+          id: user._id,
+        });
       });
     }
   })(req, res);

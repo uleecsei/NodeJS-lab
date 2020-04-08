@@ -4,7 +4,7 @@ const secret = config.get('Customer.secret');
 
 module.exports = (req, res, next) => {
   try {
-    const jwtToken = req.headers['token'];
+    const [, jwtToken] = req.headers['authorization'].split(' ');
     if (jwtToken && jwtToken !== 'undefined') {
       const user = jwt.verify(jwtToken, secret);
       if (user) {

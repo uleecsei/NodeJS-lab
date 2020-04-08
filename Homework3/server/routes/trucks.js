@@ -5,20 +5,20 @@ const truckSchema = require('../validation/truckSchema');
 const Truck = require('../models/Truck');
 
 const types = {
-  'Sprinter': {
+  'sprinter': {
     width: 170,
     height: 250,
     length: 300,
     weight: 1700,
   },
-  'Small straight': {
+  'small straight': {
     width: 170,
     height: 250,
     length: 500,
     weight: 2500,
   },
 
-  'Large straight': {
+  'large straight': {
     width: 200,
     height: 350,
     length: 700,
@@ -27,96 +27,149 @@ const types = {
 };
 
 /**
- * @api {post} /api/truck/:id create a truck
+ * @api {post} /api/trucks Create truck(only driver has access).
+ *
  * @apiName PostTruck
  * @apiGroup Truck
  *
- * @apiParam {String} type type of truck
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
  *
- * @apiSuccess {String} message truck was added
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
+ *
+ * @apiParam {String} type Truck type(SPRINTER, SMALL STRAIGHT, LARGE STRAIGHT).
+ * @apiParamExample {json} Payload example:
+ *               { "type": "SPRINTER" }
+ *
+ * @apiSuccess {String} status Operation status.
+ * @apiSuccessExample {json} Success-Response:
+ *                 { "status": "Truck created successfully"}
+ * @apiSuccess {Object} truck Truck
+ *
  *
  * @apiError IncorrectData Input data is incorrect
  * @apiError WrongId TokenId and url's id do not match
  */
 
-router.post('/:id', tokenCheck, async (req, res) => {
+router.post('/', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Incorrect id';
+    if (req.payload.role.toString() !== 'driver') {
+      throw Error('Access denied');
     }
+    const type = req.body.type.toLowerCase();
+    console.log(type);
     const {value, error} = truckSchema.validate({
-      type: req.body.type,
+      type: type,
     });
     if (error) {
-      throw 'Incorrect data';
+      throw Error('Incorrect data');
     }
     await Truck.create(
         {
-          created_by: req.params.id,
-          type: req.body.type,
-          params: types[req.body.type],
+          created_by: req.payload.id,
+          type: type,
+          params: types[type],
         },
         (err, truck) => {
           if (err) {
-            res.status(500).json({message: 'Truck was not added', err});
+            res.status(500).json({status: 'Truck was not added', err});
           } else {
-            res.status(200).send(truck);
+            res.status(200).send({truck, status: 'Truck created successfully'});
           }
         },
     );
   } catch (err) {
-    res.status(500).json({message: 'Truck was not added', err});
+    res.status(500).json({status: 'Truck was not added', err});
   }
 });
 
 /**
- * @api {get} /api/truck/:id get existing trucks
+ * @api {get} /api/trucks Retreive list of trucks(for this driver)
  * @apiName getTruck
  * @apiGroup Truck
  *
- * @apiSuccess {Object} truck
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
  *
- * @apiError WrongId TokenId and url's id do not match
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
+ *
+ * @apiSuccess {String} status Operation status.
+ * @apiSuccess {[Object]} trucks array of trucks
+ * @apiSuccessExample {json} Success-Response:
+ * {
+  "status": "Truck created successfully"
+  "trucks": [
+     {
+         "_id": "fbawfibaw",
+         "assigned_to": "",
+         "status": "OS",
+         "created_by": "fbawfibaw",
+         "type": "SPRINTER",
+         "...": "..."
+     }
+  ]
+}
+ *
+ * @apiError AccessDenied Access denied
  */
 
-router.get('/:id', tokenCheck, async (req, res) => {
+router.get('/', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Incorrect id';
+    if (req.payload.role.toString() !== 'driver') {
+      throw Error('Access denied');
     }
-    const value = await Truck.find({created_by: req.params.id});
+    const value = await Truck.find({created_by: req.payload.id});
     res.status(200).send(value);
   } catch (err) {
-    res.status(500).json({message: 'Access denied', err});
+    res.status(500).json({status: 'Access denied', err});
   }
 });
 
 /**
- * @api {put} /api/truck/:id/assign assign truck to his owner
- * @apiName putTruck
+ * @api {patch} /api/trucks/:id/assign Assign driver to truck with specified id.
+ *
+ * @apiName patchTruck
  * @apiGroup Truck
  *
- * @apiParam {Object} truck object with truck data
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
  *
- * @apiSuccess {Object} message Truck has been assigned
- * @apiError WrongId TokenId and url's id do not match
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
+ *
+ * @apiSuccess {String} status Operation status.
+ * @apiSuccessExample {json} Success-Response:
+ * {
+  "status": "Truck assigned successfully"
+  }
+ * @apiError AccessDenied Access denied
  * @apiError DriverIsBusy Driver can not assign trucks
+ * @apiError IncorrectId Incorrect truckId
+ * @apiError TruckWasNotAssigned Truck was not assigned
  */
 
-router.put('/:id/assign', tokenCheck, async (req, res) => {
+router.patch('/:id/assign', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Incorrect id';
+    if (req.payload.role.toString() !== 'driver') {
+      throw Error('Access denied');
     }
-    const truckId = req.body._id;
-    const userId = req.params.id;
+    const truckId = req.params.id;
+    const userId = req.payload.id;
 
     const isOnLoad = await Truck.find({
       created_by: userId,
       status: 'OL',
     });
     if (isOnLoad.length) {
-      throw 'Driver can not assign trucks';
+      throw Error('Driver can not assign trucks');
     }
     const isUnassigned = await Truck.findOneAndUpdate(
         {created_by: userId, assigned_to: true},
@@ -131,43 +184,58 @@ router.put('/:id/assign', tokenCheck, async (req, res) => {
         },
     );
     if (isUnassigned && isAssigned) {
-      res.status(200).json({message: 'Truck has been assigned'});
+      res.status(200).json({status: 'Truck assigned successfully'});
     } else {
-      throw 'Incorrect truckId';
+      throw Error('Incorrect truckId');
     }
   } catch (err) {
-    res.status(500).json({message: 'Truck was not assigned', err});
+    res.status(500).json({status: 'Truck was not assigned', err});
   }
 });
 
 /**
- * @api {put} /api/truck/:id/assign assign truck to his owner
+ * @api {patch} /api/trucks/:id/update Update truck information
  * @apiName putTruck
  * @apiGroup Truck
  *
- * @apiParam {Object} truck object with truck data
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
  *
- * @apiSuccess {Object} message Truck has been assigned
- * @apiError WrongId TokenId and url's id do not match
- * @apiError DriverIsBusy Driver can not assign trucks
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
+ *
+ * @apiParam {String} type Truck type(SPRINTER, SMALL STRAIGHT, LARGE STRAIGHT).
+ *
+ * @apiSuccess {String} status Operation status.
+ * @apiSuccessExample {json} Success-Response:
+ * {
+  "status": "Truck has been updated"}
+ *
+ * @apiError AccessDenied Access denied
+ * @apiError InvalidType Invalid type
+ * @apiError TruckRequired TruckId is required
+ * @apiError TruckIsAssigned Truck is asigned
+ * @apiError TruckWasNotUpdated Truck was not updated
  */
 
-router.put('/:id/update', tokenCheck, async (req, res) => {
+router.patch('/:id/update', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Incorrect id';
+    if (req.payload.role.toString() !== 'driver') {
+      throw Error('Access denied');
     }
     const {value, error} = truckSchema.validate({
       type: req.body.type,
     });
     if (error) {
-      throw 'Invalid type';
+      throw Error('Invalid type');
     }
-    const truckId = req.body._id;
-    const userId = req.params.id;
+    const truckId = req.params.id;
+    const userId = req.payload.id;
 
     if (!truckId) {
-      throw 'TruckId is required';
+      throw Error('TruckId is required');
     }
 
     const isAssigned = await Truck.find({
@@ -177,7 +245,7 @@ router.put('/:id/update', tokenCheck, async (req, res) => {
     });
 
     if (isAssigned.length) {
-      throw 'Truck is asigned';
+      throw Error('Truck is asigned');
     }
 
     const isUpdated = await Truck.findOneAndUpdate(
@@ -188,39 +256,51 @@ router.put('/:id/update', tokenCheck, async (req, res) => {
         },
     );
     if (isUpdated) {
-      res.status(200).send({message: 'Truck has been updated'});
+      res.status(200).send({status: 'Truck has been updated'});
     } else {
-      res.status(500).json({message: 'Truck was not updated'});
+      res.status(500).json({status: 'Truck was not updated'});
     }
   } catch (err) {
-    res.status(500).json({message: 'Truck was not updated', err});
+    res.status(500).json({status: 'Truck was not updated', err});
   }
 });
 
 /**
- * @api {delete} /api/truck/:id delete a truck
+ * @api {delete} /api/trucks/:id Delete a truck
  * @apiName deleteTruck
  * @apiGroup Truck
  *
- * @apiParam {Object} truck object with truck data
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
  *
- * @apiSuccess {Object} message Truck has been deleted
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
  *
- * @apiError WrongId TokenId and url's id do not match
+ * @apiSuccess {String} status Operation status.
+ * @apiSuccessExample {json} Success-Response:
+ * {
+  "status": "Truck was deleted with success"}
+ *
+ *
+ * @apiError AccessDenied Access denied
  * @apiError TruckIsOnLoad Truck in on load
+ * @apiError TruckIdIsRequired TruckId is required
+ * @apiError TruckWasNotDeleted Truck was not deleted
  */
 
 router.delete('/:id', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Incorrect id';
+    if (req.payload.role.toString() !== 'driver') {
+      throw Error('Access denied');
     }
 
-    const truckId = req.body._id;
-    const userId = req.params.id;
+    const truckId = req.params.id;
+    const userId = req.payload.id;
 
     if (!truckId) {
-      throw 'TruckId is required';
+      throw Error('TruckId is required');
     }
     const isOnLoad = await Truck.find({
       _id: truckId,
@@ -228,18 +308,18 @@ router.delete('/:id', tokenCheck, async (req, res) => {
       status: 'OL',
     });
     if (isOnLoad.length) {
-      throw 'Truck in on load';
+      throw Error('Truck in on load');
     }
     const isDeleted = await Truck.findByIdAndDelete(truckId);
     if (isDeleted) {
-      res.status(200).send({message: 'Truck was deleted with success'});
+      res.status(200).send({status: 'Truck was deleted with success'});
     } else {
       res
           .status(500)
-          .send({message: 'Truck was not deleted', err: 'Incorrect truckId'});
+          .send({status: 'Truck was not deleted', err: 'Incorrect truckId'});
     }
   } catch (err) {
-    res.status(500).json({message: 'Truck was not updated', err});
+    res.status(500).json({status: 'Truck was not deleted', err});
   }
 });
 module.exports = router;

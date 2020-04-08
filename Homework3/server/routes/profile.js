@@ -7,30 +7,41 @@ const Load = require('../models/Load');
 const bcrypt = require('bcrypt');
 
 /**
- * @api {get} /api/profile/:id getting user parameters
+ * @api {get} /api/profile Getting user parameters.
  * @apiName GetUser
  * @apiGroup User
  *
- * @apiHeader {String} payload User's jwt from local storage.
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
  *
- * @apiSuccess {String} userFound Returning User's data.
+ * @apiSuccess {Object} payload Profile data
+ * @apiSuccessExample {json} Success-Response:
+ * {
+    "role": "shipper",
+    "_id": "5e8dcfbda51abaac2b0583f3",
+    "username": "Kyrylo",
+    "password": "$2b$10$IUr7xz3rhEIQjmZJfe0YZ.H3KbkZrDvVtIk.TvK9GTccWBmZIbJcK",
+    "__v": 0,
+    "loads": [...],
+ }
  *
  * @apiError UserIsUnAuthorized User is not authorized.
  * @apiError UserWasNotFound Server can not find a user
- * @apiError WrongId TokenId and url's id do not match
+ *
  * */
 
-router.get('/:id', tokenCheck, async (req, res) => {
+router.get('/', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Wrong id';
-    }
-    User.findById(req.payload.id, async (err, response) => {
+    const userId = req.payload.id;
+    User.findById(userId, async (err, response) => {
       if (err) {
-        res.status(500).json({message: 'Can not get a profile', error: err});
+        res.status(500).json({status: 'Can not get a profile', error: err});
       }
       const payload = Object.assign({}, response._doc);
-      const userId = req.payload.id;
       if (payload.role == 'driver') {
         const trucks = await Truck.find({created_by: userId});
         const loads = await Load.find({assigned_to: userId});
@@ -44,42 +55,54 @@ router.get('/:id', tokenCheck, async (req, res) => {
 
         res.status(200).json(payload);
       } else {
-        res.status(500).json({message: 'Can not get a profile'});
+        res.status(500).json({status: 'Can not get a profile'});
       }
     });
   } catch (err) {
-    res.status(500).json({message: 'Can not get a profile', error: err});
+    res.status(500).json({status: 'Can not get a profile', error: err});
   }
 });
 
 /**
- * @api {put} /api/profile/:id/password changing User's password
+ * @api {patch} /api/profile/password Change User's password
  * @apiName putUser
  * @apiGroup User
  *
- * @apiHeader {String} payload User's jwt from local storage.
- * @apiHeader {String} oldPassword current User's password
- * @apiHeader {String} newPassword new User's password
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
  *
- * @apiSuccess {String} message Successful update
+ * @apiParam {String} oldPassword current User's password
+ * @apiParam {String} newPassword new User's password
+ * @apiParamExample {json} Payload example:
+ * {
+ * "oldPassword": 123,
+ * "newPassword": 1234
+ * }
+ *
+ * @apiSuccess {String} status Successful update
+ * @apiSuccessExample {json} Success-Response:{
+ *  "status": "Successful update"
+ * }
  *
  * @apiError PasswordIsRequired Your password or/and new password required
  * @apiError UserWasNotFound Server can not find a user
  * @apiError WrongId TokenId and url's id do not match
  * */
 
-router.put('/:id/password', tokenCheck, async (req, res) => {
+router.patch('/password', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Wrong id';
-    }
+    const userId = req.payload.id;
     User.findById(req.payload.id, async (err, response) => {
       try {
         if (err) {
           throw err;
         }
         const isOnLoad = await Truck.find({
-          created_by: req.payload.id,
+          created_by: userId,
           status: 'OL',
         });
 
@@ -87,7 +110,7 @@ router.put('/:id/password', tokenCheck, async (req, res) => {
           res.status(500).json({message: 'Driver is busy'});
         }
         if (!req.body.oldPassword || !req.body.newPassword) {
-          throw 'Your password or/and new password required';
+          throw Error('Your password or/and new password required');
         }
         const passwordMatch = bcrypt.compareSync(
             req.body.oldPassword,
@@ -99,13 +122,13 @@ router.put('/:id/password', tokenCheck, async (req, res) => {
           await User.findByIdAndUpdate(req.payload.id, {
             $set: {password: hashedPassword},
           }),
-          res.status(200).json({message: 'Successful update'});
+          res.status(200).json({status: 'Successful update'});
         } else {
-          res.status(400).json({message: 'Wrong password'});
+          res.status(400).json({status: 'Wrong password'});
         }
       } catch (err) {
         res.status(500).json({
-          message: 'Profile data was not changed',
+          status: 'Profile data was not changed',
           error: err,
         });
       }
@@ -113,38 +136,44 @@ router.put('/:id/password', tokenCheck, async (req, res) => {
   } catch (err) {
     res
         .status(500)
-        .json({message: 'Profile data was not changed', error: err});
+        .json({status: 'Profile data was not changed', error: err});
   }
 });
 
 /**
- * @api {delete} /api/profile/:id delete an account
+ * @api {delete} /api/profile/ Delete an account.
  * @apiName deleteUser
  * @apiGroup User
  *
- * @apiHeader {String} payload User's jwt from local storage.
+ * @apiHeader {String} content-type Payload content type.
+ * @apiHeader {String} authorization Authorization value.
  *
- * @apiSuccess {String} message User was deleted
+ * @apiHeaderExample {json} Content-type header example
+ *               { "Content-type": "application/json" }
+ * @apiHeaderExample {json} Authorization header example
+ *               { "Authorization": "JWT fnawilfmnaiwngainegnwegneiwngoiwe" }
+ *
+ * @apiSuccess {String} status Successful delete
+ * @apiSuccessExample {json} Success-Response:{
+ *  "status": "Successful deleted"
+ * }
  *
  * @apiError UserWasNotFound Server can not find a user
  * @apiError WrongId TokenId and url's id do not match
  * */
 
-
 router.delete('/:id', tokenCheck, async (req, res) => {
   try {
-    if (req.params.id != req.payload.id.toString()) {
-      throw 'Wrong id';
-    }
-    await User.findByIdAndDelete(req.payload.id, (err, response) => {
+    const userId = req.payload.id;
+    await User.findByIdAndDelete(userId, (err, response) => {
       if (err) {
-        res.status(500).json({message: 'User was not deleted', err});
+        res.status(500).json({status: 'User was not deleted', err});
       } else {
-        res.status(200).json({message: 'User deleted with success'});
+        res.status(200).json({status: 'Successful delete'});
       }
     });
   } catch (err) {
-    res.status(500).json({message: 'User was not delete', err});
+    res.status(500).json({status: 'User was not delete', err});
   }
 });
 

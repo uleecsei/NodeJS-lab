@@ -10,13 +10,13 @@ const bcrypt = require('bcrypt');
 passport.use(
     new LocalStrategy(
         {
-          usernameField: 'email',
+          usernameField: 'username',
           passwordField: 'password',
         },
         async (username, password, done) => {
           try {
             const userDocument = await User.findOne({
-              email: username,
+              username: username,
             });
             if (!userDocument) {
               throw done('User not found!');

@@ -4,18 +4,14 @@ const bcrypt = require('bcrypt');
 const UserSchema = new mongoose.Schema({
   email: {
     type: String,
-    unique: true,
-    required: true,
     trim: true,
   },
   name: {
     type: String,
-    required: true,
     trim: true,
   },
   surname: {
     type: String,
-    required: true,
     trim: true,
   },
   username: {
@@ -31,6 +27,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: 'shipper',
     enum: ['shipper', 'driver'],
+    required: true,
   },
 });
 

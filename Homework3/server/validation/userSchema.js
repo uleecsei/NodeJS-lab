@@ -2,12 +2,10 @@ const Joi = require('@hapi/joi');
 
 const userSchema = Joi.object({
   name: Joi.string()
-      .alphanum()
-      .required(),
+      .alphanum(),
 
   surname: Joi.string()
-      .alphanum()
-      .required(),
+      .alphanum(),
 
   username: Joi.string()
       .alphanum()
@@ -24,7 +22,7 @@ const userSchema = Joi.object({
     tlds: {allow: ['com', 'net']},
   }),
 
-  role: Joi.string().alphanum(),
+  role: Joi.string().alphanum().required(),
 });
 
 module.exports = userSchema;
