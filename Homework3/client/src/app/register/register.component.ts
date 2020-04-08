@@ -17,7 +17,6 @@ export class RegisterComponent implements OnInit {
 
   register(){
     this.user.role = Array.prototype.filter.call(document.getElementsByName('role'), (item) => item.checked)[0].value ;
-    console.log(this.user);
     this.authSevice.register(this.user).subscribe(
       response => {
         this.authSevice.login(this.user).subscribe(

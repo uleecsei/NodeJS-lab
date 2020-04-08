@@ -15,23 +15,23 @@ export class UserService {
 
   
 
-  getUser(userId: string): Observable<User>{
+  getUser(): Observable<User>{
    let tokenHeader = this.authService.getTokenHeader();
-    return this.http.get<User>(this.baseUrl + 'profile/' + userId, tokenHeader);
+    return this.http.get<User>(this.baseUrl + 'profile/', tokenHeader);
   }
 
-  deleteUser(userId: string) {
+  deleteUser() {
     let tokenHeader = this.authService.getTokenHeader();
-    return this.http.delete(this.baseUrl + 'profile/' + userId, tokenHeader);
+    return this.http.delete(this.baseUrl + 'profile/', tokenHeader);
   }
 
-  changeUserPassword(userId: string, oldPassword: string, newPassword: string){
+  changeUserPassword(oldPassword: string, newPassword: string){
     let changeUserPassword = {
       oldPassword: oldPassword,
       newPassword: newPassword
     }
     let tokenHeader = this.authService.getTokenHeader();
-    return this.http.put(this.baseUrl + 'profile/' + userId + '/password', changeUserPassword, tokenHeader)
+    return this.http.patch(this.baseUrl + 'profile' + '/password', changeUserPassword, tokenHeader)
   }
 
 }

@@ -8,6 +8,9 @@ import { ChangePasswordModalComponent } from '../changePasswordModal/changePassw
 import { AddTruckModalComponent } from '../addTruckModal/addTruckModal.component';
 import { TruckService } from '../Services/truck.service';
 import { Trucks } from '../Models/Trucks';
+import { AddNewLoadModalComponent } from '../addNewLoadModal/addNewLoadModal.component';
+import { Loads } from '../Models/Loads';
+import { ShipmentsService } from '../Services/shipments.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -18,8 +21,8 @@ export class HomeComponent implements OnInit {
   userId: string;
   bsModalRef: BsModalRef;
   constructor(private userService: UserService, private authService: AuthService,
-    protected router: Router, private modalService: BsModalService,
-    protected truckService: TruckService) { }
+    private router: Router, private modalService: BsModalService,
+    private truckService: TruckService, private loadService: ShipmentsService) { }
 
   ngOnInit(): void {
     this.userId = this.authService.getUserId();
@@ -28,7 +31,7 @@ export class HomeComponent implements OnInit {
 
 
   getUser(){
-    this.userService.getUser(this.userId).subscribe(user => {
+    this.userService.getUser().subscribe(user => {
       this.user = user;
     })
   }
@@ -38,7 +41,7 @@ export class HomeComponent implements OnInit {
   }
 
   deleteUser(){
-    this.userService.deleteUser(this.userId).subscribe(() => {
+    this.userService.deleteUser().subscribe(() => {
       this.router.navigate(['register'])
     }, error => {
       console.log(error);
@@ -46,17 +49,58 @@ export class HomeComponent implements OnInit {
   }
 
   changePassword(userCreds) {
-    this.userService.changeUserPassword(this.userId, userCreds.oldPassword, userCreds.newPassword)
+    this.userService.changeUserPassword(userCreds.oldPassword, userCreds.newPassword)
       .subscribe( () => {
         alert("your password changed")
       });
   }
 
   addTruck(truckCreds) {
-    this.truckService.addNew(this.userId, truckCreds).subscribe((truck: Trucks) => {
+    this.truckService.addNew(truckCreds).subscribe((response: any) => {
+      let truck:Trucks = response.truck;
       this.user.trucks.push(truck);
     }, error => {
       alert(error.message)
+    })
+  }
+
+  assignTruck(truckId: string){
+    this.truckService.assignTo(truckId).subscribe(() => {
+      this.user.trucks.find(x => x.assigned_to == true).assigned_to = false
+      this.user.trucks.find(x => x._id == truckId).assigned_to = true;
+    })
+  }
+
+  deleteTruck(truckId: string){
+    this.truckService.deleteTrck(truckId).subscribe(() => {
+      this.user.trucks.splice(this.user.trucks.findIndex(x => x._id == truckId), 1);
+    })
+  }
+
+  updateTruckInfo(truckId: string) {
+    this.bsModalRef = this.modalService.show(AddTruckModalComponent);
+
+    this.bsModalRef.content.addTruckEvent.subscribe(truckCreds => {
+      this.bsModalRef.hide();
+      this.truckService.updateTruck(truckId, truckCreds).subscribe(() => {
+        this.user.trucks.find(x => x._id = truckId).type = truckCreds.type;
+      })
+    })
+  }
+
+  addLoad(loadCreds: Loads){
+    this.loadService.create(loadCreds).subscribe((response:any) => {
+      let load:Loads = response.load;
+      this.user.loads.push(load);
+    })
+  }
+
+  openAddLoadModal() {
+    this.bsModalRef = this.modalService.show(AddNewLoadModalComponent);
+
+    this.bsModalRef.content.addLoadEvent.subscribe(loadCreds => {
+      this.bsModalRef.hide();
+      this.addLoad(loadCreds)
     })
   }
 

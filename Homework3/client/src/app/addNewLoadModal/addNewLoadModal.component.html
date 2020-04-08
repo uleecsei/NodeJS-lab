@@ -1,0 +1,30 @@
+<div class="modal-header">
+  <h4>Add new Load</h4>
+  <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+
+  <label>Width
+    <input type="text" name="width" [(ngModel)]="loadCreds.width">
+  </label>
+
+  <label>Length
+    <input type="text" name="length" [(ngModel)]="loadCreds.length">
+  </label>
+
+  <label>Height
+    <input type="text" name="height" [(ngModel)]="loadCreds.height">
+  </label>
+
+  <label>Payload
+    <input type="text" name="payload" [(ngModel)]="loadCreds.payload">
+  </label>
+
+
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-success" (click)="addTruck()">Save</button>
+  <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">Close</button>
+</div>

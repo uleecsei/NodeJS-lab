@@ -8,7 +8,7 @@ import { map } from 'rxjs/operators'
   providedIn: 'root'
 })
 export class AuthService {
-  baseUrl = environment.baseUrl;
+  baseUrl = environment.baseUrl +'auth/';
   constructor(private http: HttpClient) { }
 
   login(user: User) {
@@ -38,7 +38,7 @@ export class AuthService {
 
   getTokenHeader(){
     let headerDict = {
-      'token': this.getToken(),
+      'authorization': 'JWT ' + this.getToken(),
     }
     let requestOptions = {                                                                                                                                                                                 
       headers: new HttpHeaders(headerDict), 

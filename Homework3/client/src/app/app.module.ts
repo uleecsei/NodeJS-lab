@@ -14,6 +14,7 @@ import { RegisterComponent } from './register/register.component';
 import { ChangePasswordModalComponent } from './changePasswordModal/changePasswordModal.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AddTruckModalComponent } from './addTruckModal/addTruckModal.component';
+import { AddNewLoadModalComponent } from './addNewLoadModal/addNewLoadModal.component';
 
 @NgModule({
    declarations: [
@@ -24,7 +25,8 @@ import { AddTruckModalComponent } from './addTruckModal/addTruckModal.component'
       HomeComponent,
       RegisterComponent,
       ChangePasswordModalComponent,
-      AddTruckModalComponent
+      AddTruckModalComponent,
+      AddNewLoadModalComponent
    ],
    imports: [
       BrowserModule,

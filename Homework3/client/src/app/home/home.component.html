@@ -60,7 +60,7 @@
                   <span> x </span>
                   <span class="load__length">{{load.dimensions.length}}</span>
                   <span> , </span>
-                  <span class="load__weight">{{load.dimensions.weight}}</span>
+                  <span class="load__weight">{{load.payload}}</span>
                   <span> kg </span>
                 </td>
                 <td class="load__status">{{load.status}}</td>
@@ -119,6 +119,8 @@
                     class="btn btn-success car__assign"
                     type="button"
                     value="Assign Truck"
+                    (click)="assignTruck(truck._id)"
+                    [disabled]='truck.assigned_to'
                     />
                 </td>
                 <td class="car__button">
@@ -126,7 +128,8 @@
                     class="btn btn-primary car__update"
                     type="button"
                     value="Update info"
-                    disabled
+                    (click)="updateTruckInfo(truck._id)"
+                    [disabled]='truck.assigned_to'
                     />
                 </td>
                 <td class="car__button">
@@ -134,7 +137,8 @@
                     class="btn btn-danger car__delete"
                     type="button"
                     value="Delete truck"
-                    disabled
+                    (click)="deleteTruck(truck._id)"
+                    [disabled]='truck.assigned_to'
                     />
                 </td>
               </tr>
@@ -157,6 +161,7 @@
               <th scope="col" class="headings__button"></th>
               <th scope="col" class="headings__button">
                 <input
+                  (click)="openAddLoadModal()"
                   class="btn btn-primary shipment__add"
                   type="button"
                   value="Add new +"
@@ -174,7 +179,7 @@
                 <span> x </span>
                 <span class="load__length">{{load.dimensions.length}}</span>
                 <span> , </span>
-                <span class="load__weight">{{load.dimensions.weight}}</span>
+                <span class="load__weight">{{load.payload}}</span>
                 <span> kg </span>
               </td>
               <td class="load__status">{{load.status}}</td>

@@ -1,7 +1,8 @@
-import { Params } from './Params';
+import { Dimensions } from './Dimensions';
 
 export class Loads {
-    dimensions: Params;
+    dimensions: Dimensions;
+    payload: number;
     assigned_to: string;
     status: string;
     name: string;
