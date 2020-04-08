@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from '../Models/User';
 import { environment } from 'src/environments/environment.prod';
 import { map } from 'rxjs/operators'
@@ -18,6 +18,7 @@ export class AuthService {
             if(response)
             {
               localStorage.setItem('token', response.token);
+              localStorage.setItem('id', response.id);
             }
           })
       )
@@ -25,5 +26,24 @@ export class AuthService {
 
   register(user: User) {
     return this.http.post(this.baseUrl + 'register', user);
+  }
+
+  getUserId(){
+    return localStorage.getItem('id');
+  }
+
+  getToken(){
+    return localStorage.getItem('token')
+  }
+
+  getTokenHeader(){
+    let headerDict = {
+      'token': this.getToken(),
+    }
+    let requestOptions = {                                                                                                                                                                                 
+      headers: new HttpHeaders(headerDict), 
+    };
+
+    return requestOptions;
   }
 }

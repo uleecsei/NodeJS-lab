@@ -6,6 +6,20 @@ const Truck = require('../models/Truck');
 const Load = require('../models/Load');
 const bcrypt = require('bcrypt');
 
+/**
+ * @api {get} /api/profile/:id getting user parameters
+ * @apiName GetUser
+ * @apiGroup User
+ *
+ * @apiHeader {String} payload User's jwt from local storage.
+ *
+ * @apiSuccess {String} userFound Returning User's data.
+ *
+ * @apiError UserIsUnAuthorized User is not authorized.
+ * @apiError UserWasNotFound Server can not find a user
+ * @apiError WrongId TokenId and url's id do not match
+ * */
+
 router.get('/:id', tokenCheck, async (req, res) => {
   try {
     if (req.params.id != req.payload.id.toString()) {
@@ -17,14 +31,14 @@ router.get('/:id', tokenCheck, async (req, res) => {
       }
       const payload = Object.assign({}, response._doc);
       const userId = req.payload.id;
-      if (role == 'driver') {
+      if (payload.role == 'driver') {
         const trucks = await Truck.find({created_by: userId});
         const loads = await Load.find({assigned_to: userId});
         payload.loads = loads;
         payload.trucks = trucks;
 
         res.status(200).json(payload);
-      } else if (role == 'shipper') {
+      } else if (payload.role == 'shipper') {
         const loads = await Load.find({created_by: userId});
         payload.loads = loads;
 
@@ -37,6 +51,22 @@ router.get('/:id', tokenCheck, async (req, res) => {
     res.status(500).json({message: 'Can not get a profile', error: err});
   }
 });
+
+/**
+ * @api {put} /api/profile/:id/password changing User's password
+ * @apiName putUser
+ * @apiGroup User
+ *
+ * @apiHeader {String} payload User's jwt from local storage.
+ * @apiHeader {String} oldPassword current User's password
+ * @apiHeader {String} newPassword new User's password
+ *
+ * @apiSuccess {String} message Successful update
+ *
+ * @apiError PasswordIsRequired Your password or/and new password required
+ * @apiError UserWasNotFound Server can not find a user
+ * @apiError WrongId TokenId and url's id do not match
+ * */
 
 router.put('/:id/password', tokenCheck, async (req, res) => {
   try {
@@ -86,6 +116,20 @@ router.put('/:id/password', tokenCheck, async (req, res) => {
         .json({message: 'Profile data was not changed', error: err});
   }
 });
+
+/**
+ * @api {delete} /api/profile/:id delete an account
+ * @apiName deleteUser
+ * @apiGroup User
+ *
+ * @apiHeader {String} payload User's jwt from local storage.
+ *
+ * @apiSuccess {String} message User was deleted
+ *
+ * @apiError UserWasNotFound Server can not find a user
+ * @apiError WrongId TokenId and url's id do not match
+ * */
+
 
 router.delete('/:id', tokenCheck, async (req, res) => {
   try {

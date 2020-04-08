@@ -22,6 +22,7 @@ const Truck = require('../models/Truck');
  *
  * @apiError UserIsUnAuthorized User is not authorized.
  * @apiError LoadWasNotCreated Load wasn\'t created.
+ * @apiError WrongId TokenId and url's id do not match
  */
 
 router.post('/:id', tokenCheck, async (req, res) => {
@@ -47,10 +48,10 @@ router.post('/:id', tokenCheck, async (req, res) => {
         {
           name: req.body.name,
           dimensions: {
-            width: req.body.width,
-            height: req.body.height,
-            length: req.body.length,
-            weight: req.body.weight,
+            width: Number(req.body.width),
+            height: Number(req.body.height),
+            length: Number(req.body.length),
+            weight: Number(req.body.weight),
           },
           logs: [
             {
@@ -92,6 +93,7 @@ router.post('/:id', tokenCheck, async (req, res) => {
  *
  * @apiError UserIsUnAuthorized User is not authorized.
  * @apiError LoadWasNotUpdated Load wasn\'t updated.
+ * @apiError WrongId TokenId and url's id do not match
  *
  */
 
@@ -147,6 +149,7 @@ router.put('/:id', tokenCheck, async (req, res) => {
  *
  * @apiError UserIsUnAuthorized User is not authorized.
  * @apiError LoadWasnotNew Load wasn't deleted.
+ * @apiError WrongId TokenId and url's id do not match
  */
 
 router.delete('/:id', tokenCheck, async (req, res) => {
@@ -193,6 +196,7 @@ router.delete('/:id', tokenCheck, async (req, res) => {
  * @apiError LoadWasntAssigned Server can not assign truck or/and load.
  * @apiError LoadDoesntExist Server can not find a load
  * @apiError TruckDoesntExist No trucks to ship founded.
+ * @apiError WrongId TokenId and url's id do not match
  */
 
 router.put('/:id/post', tokenCheck, async (req, res) => {
@@ -210,19 +214,18 @@ router.put('/:id/post', tokenCheck, async (req, res) => {
     if (!load) {
       throw 'Server can not find a load';
     }
-
     await Load.findByIdAndUpdate(loadId, {status: 'POSTED'});
-    const fittingTruck = await Truck.where('is_assigned')
+    const fittingTruck = await Truck.where('assigned_to')
         .equals(true)
         .where('status')
         .equals('IS')
-        .where('weight')
+        .where('params.weight')
         .gt(load.dimensions.weight)
-        .where('dimensions.width')
+        .where('params.width')
         .gt(load.dimensions.width)
-        .where('dimensions.length')
+        .where('params.length')
         .gt(load.dimensions.length)
-        .where('dimensions.height')
+        .where('params.height')
         .gt(load.dimensions.height)
         .findOne();
 
@@ -259,7 +262,6 @@ router.put('/:id/post', tokenCheck, async (req, res) => {
   }
 });
 
-
 /**
  * @api {put} /api/load/:id/shipped driver set load status to shipped
  * @apiName PutLoad
@@ -273,6 +275,7 @@ router.put('/:id/post', tokenCheck, async (req, res) => {
  * @apiError LoadWasntAssigned Load wasn't shipped.
  * @apiError LoadDoesntExist Load doesn't exist.
  * @apiError TruckDoesntExist Truck was not found.
+ * @apiError WrongId TokenId and url's id do not match
  */
 
 router.put('/:id/shipped', tokenCheck, async (req, res) => {
@@ -282,7 +285,10 @@ router.put('/:id/shipped', tokenCheck, async (req, res) => {
     }
 
     const loadId = req.body._id;
-    const load = await Load.findById(loadId);
+    const load = await Load.findOne({
+      _id: loadId,
+      assigned_to: req.params.id,
+    });
     if (!load) {
       throw 'Server can not find the load';
     }

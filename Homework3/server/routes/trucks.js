@@ -26,7 +26,18 @@ const types = {
   },
 };
 
-
+/**
+ * @api {post} /api/truck/:id create a truck
+ * @apiName PostTruck
+ * @apiGroup Truck
+ *
+ * @apiParam {String} type type of truck
+ *
+ * @apiSuccess {String} message truck was added
+ *
+ * @apiError IncorrectData Input data is incorrect
+ * @apiError WrongId TokenId and url's id do not match
+ */
 
 router.post('/:id', tokenCheck, async (req, res) => {
   try {
@@ -58,6 +69,16 @@ router.post('/:id', tokenCheck, async (req, res) => {
   }
 });
 
+/**
+ * @api {get} /api/truck/:id get existing trucks
+ * @apiName getTruck
+ * @apiGroup Truck
+ *
+ * @apiSuccess {Object} truck
+ *
+ * @apiError WrongId TokenId and url's id do not match
+ */
+
 router.get('/:id', tokenCheck, async (req, res) => {
   try {
     if (req.params.id != req.payload.id.toString()) {
@@ -69,6 +90,18 @@ router.get('/:id', tokenCheck, async (req, res) => {
     res.status(500).json({message: 'Access denied', err});
   }
 });
+
+/**
+ * @api {put} /api/truck/:id/assign assign truck to his owner
+ * @apiName putTruck
+ * @apiGroup Truck
+ *
+ * @apiParam {Object} truck object with truck data
+ *
+ * @apiSuccess {Object} message Truck has been assigned
+ * @apiError WrongId TokenId and url's id do not match
+ * @apiError DriverIsBusy Driver can not assign trucks
+ */
 
 router.put('/:id/assign', tokenCheck, async (req, res) => {
   try {
@@ -106,6 +139,18 @@ router.put('/:id/assign', tokenCheck, async (req, res) => {
     res.status(500).json({message: 'Truck was not assigned', err});
   }
 });
+
+/**
+ * @api {put} /api/truck/:id/assign assign truck to his owner
+ * @apiName putTruck
+ * @apiGroup Truck
+ *
+ * @apiParam {Object} truck object with truck data
+ *
+ * @apiSuccess {Object} message Truck has been assigned
+ * @apiError WrongId TokenId and url's id do not match
+ * @apiError DriverIsBusy Driver can not assign trucks
+ */
 
 router.put('/:id/update', tokenCheck, async (req, res) => {
   try {
@@ -151,6 +196,19 @@ router.put('/:id/update', tokenCheck, async (req, res) => {
     res.status(500).json({message: 'Truck was not updated', err});
   }
 });
+
+/**
+ * @api {delete} /api/truck/:id delete a truck
+ * @apiName deleteTruck
+ * @apiGroup Truck
+ *
+ * @apiParam {Object} truck object with truck data
+ *
+ * @apiSuccess {Object} message Truck has been deleted
+ *
+ * @apiError WrongId TokenId and url's id do not match
+ * @apiError TruckIsOnLoad Truck in on load
+ */
 
 router.delete('/:id', tokenCheck, async (req, res) => {
   try {

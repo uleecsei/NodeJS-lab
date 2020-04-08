@@ -28,10 +28,10 @@ const loadSchema = new Schema({
     default: 'Load',
   },
   dimensions: {
-    width: {type: String, required: true},
-    length: {type: String, required: true},
-    height: {type: String, required: true},
-    weight: {type: String, required: true},
+    width: {type: Number, required: true},
+    length: {type: Number, required: true},
+    height: {type: Number, required: true},
+    weight: {type: Number, required: true},
   },
   state: {
     type: String,
@@ -40,6 +40,7 @@ const loadSchema = new Schema({
       'Arrived to Pick Up',
       'En route to Delivery',
       'Arrived to Delivery',
+      null,
     ],
     default: null,
   },

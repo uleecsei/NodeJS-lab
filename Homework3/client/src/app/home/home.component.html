@@ -1,1 +1,209 @@
-<p>home works!</p>
+<div class="page">
+  <main class="main">
+    <div class="profile">
+      <div class="profile__pic-wrapper">
+        <img class="profile__pic" src="../../assets/images/gears.png"
+          alt="gears" />
+      </div>
+      <div class="profile__card">
+        <div *ngIf="checkRole('driver')" class="profile__title">Driver license</div>
+        <div *ngIf="checkRole('shipper')" class="profile__title">Shipper Info</div>
+        <ul class="profile__list">
+          <li class="profile__item">
+            <div class="profile__fullname">
+              <span class="profile__name">{{user.name}}</span> <span> </span><span
+                class="profile__surname">{{user.surname}}</span>
+            </div>
+          </li>
+          <li class="profile__item">
+            <div class="profile__username">
+              <span class="profile__item-title">@</span><span
+                class="profile__username-data">{{user.username}}</span>
+            </div>
+          </li>
+          <li class="profile__item">
+            <div class="profile__email">
+              <span class="profile__item-title">Email: </span><span
+                class="profile__email-data">{{user.email}}</span>
+            </div>
+          </li>
+          <li class="profile__item">
+            <a (click)="openChangePasswordModal()" class="profile__change-pass">Change password</a>
+          </li>
+          <li class="profile__item">
+            <a (click)="deleteUser()" class="profile__delete">Delete an account</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div *ngIf="checkRole('driver')">
+      <div class="shipment">
+        <h3 class="shipment__title">Current shipments</h3>
+        <div class="shipment__table-wrapper">
+          <table class="shipment__table table">
+            <thead class="thead-dark">
+              <tr class="headings">
+                <th scope="col" class="headings__name">Name</th>
+                <th scope="col" class="headings__dimensions">Dimensions</th>
+                <th scope="col" class="headings__status">Status</th>
+                <th scope="col" class="headings__state">State</th>
+                <th scope="col" class="headings__button"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let load of user.loads" class="load">
+                <th scope="row" class="load__name">{{load.name}}</th>
+                <td class="load__dimensions">
+                  <span class="load__width">{{load.dimensions.width}}</span>
+                  <span> x </span>
+                  <span class="load__height">{{load.dimensions.height}}</span>
+                  <span> x </span>
+                  <span class="load__length">{{load.dimensions.length}}</span>
+                  <span> , </span>
+                  <span class="load__weight">{{load.dimensions.weight}}</span>
+                  <span> kg </span>
+                </td>
+                <td class="load__status">{{load.status}}</td>
+                <td class="load__state">{{load.state}}</td>
+                <td>
+                  <input
+                    class="btn btn-primary load__submit"
+                    type="button"
+                    value="Change status to 'Arrived'"
+                    />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="trucks">
+        <h3 class="trucks__title">
+          Your trucks
+        </h3>
+
+        <div class="trucks__table-wrapper">
+          <table class="trucks__table table">
+            <thead class="thead-dark">
+              <tr class="headings">
+                <th scope="col" class="headings__type">Type</th>
+                <th scope="col" class="headings__dimensions">Dimensions</th>
+                <th scope="col" class="headings__status">Status</th>
+                <th scope="col" class="headings__button"></th>
+                <th scope="col" class="headings__button"></th>
+                <th scope="col" class="headings__button">
+                  <input (click) = "openAddTruckModal()"
+                    class="btn btn-primary car__submit"
+                    type="button"
+                    value="Add new +"
+                    />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let truck of user.trucks" class="car">
+                <th scope="row" class="car__name">{{truck.type}}</th>
+                <td class="car__dimensions">
+                  <span class="car__width">{{truck.params.width}}</span>
+                  <span> x </span>
+                  <span class="car__height">{{truck.params.height}}</span>
+                  <span> x </span>
+                  <span class="car__length">{{truck.params.length}}</span>
+                  <span> , </span>
+                  <span class="car__weight">{{truck.params.weight}}</span>
+                  <span> kg </span>
+                </td>
+                <td class="car__status">{{truck.status}}</td>
+                <td class="car__button">
+                  <input
+                    class="btn btn-success car__assign"
+                    type="button"
+                    value="Assign Truck"
+                    />
+                </td>
+                <td class="car__button">
+                  <input
+                    class="btn btn-primary car__update"
+                    type="button"
+                    value="Update info"
+                    disabled
+                    />
+                </td>
+                <td class="car__button">
+                  <input
+                    class="btn btn-danger car__delete"
+                    type="button"
+                    value="Delete truck"
+                    disabled
+                    />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="checkRole('shipper')" class="shipment">
+      <h3 class="shipment__title">Your shipments</h3>
+      <div class="shipment__table-wrapper">
+        <table class="shipment__table table">
+          <thead class="thead-dark">
+            <tr class="headings">
+              <th scope="col" class="headings__name">Name</th>
+              <th scope="col" class="headings__dimensions">Dimensions</th>
+              <th scope="col" class="headings__status">Status</th>
+              <th scope="col" class="headings__state">State</th>
+              <th scope="col" class="headings__button"></th>
+              <th scope="col" class="headings__button"></th>
+              <th scope="col" class="headings__button">
+                <input
+                  class="btn btn-primary shipment__add"
+                  type="button"
+                  value="Add new +"
+                />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let load of user.loads" class="load">
+              <th scope="row" class="load__name">{{load.name}}</th>
+              <td class="load__dimensions">
+                <span class="load__width">{{load.dimensions.width}}</span>
+                <span> x </span>
+                <span class="load__height">{{load.dimensions.height}}</span>
+                <span> x </span>
+                <span class="load__length">{{load.dimensions.length}}</span>
+                <span> , </span>
+                <span class="load__weight">{{load.dimensions.weight}}</span>
+                <span> kg </span>
+              </td>
+              <td class="load__status">{{load.status}}</td>
+              <td class="load__state">{{load.state}}</td>
+              <td class="load__button">
+                <input
+                  class="btn btn-success load__post"
+                  type="button"
+                  value="update"
+                />
+              </td>
+              <td class="load__button">
+                <input
+                  class="btn btn-primary load__post"
+                  type="button"
+                  value="post"
+                />
+              </td>
+              <td class="load__button">
+                <input
+                  class="btn btn-danger load__post"
+                  type="button"
+                  value="delete"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>

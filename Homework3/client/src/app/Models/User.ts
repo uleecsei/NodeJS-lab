@@ -1,3 +1,6 @@
+import { Trucks } from './Trucks';
+import { Loads } from './Loads';
+
 export class User {
     email:string;
     password:string;
@@ -5,4 +8,7 @@ export class User {
     surname: string;
     username: string;
     options: string;
+    role: string;
+    loads: Loads[];
+    trucks: Trucks[];
 }
